@@ -1,6 +1,6 @@
 var kahoot = null;
 var runningTimer = null;
-var proxy = 'https://cors.io/?';
+var proxy = document.location.href;
 $('#activate-pin').click(function () {
     var originalText = $('#activate-pin').text();
     $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
