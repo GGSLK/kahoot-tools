@@ -1,0 +1,134 @@
+* {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+body {
+    padding: 0;
+}
+
+#control-panel {
+    display: none;
+    height: 100vh;
+    overflow: hidden;
+    padding: 20px;
+}
+
+#login-panel {
+    padding: 20px;
+}
+
+#function-box h4 {
+    margin-top: 20px;
+}
+
+.answer-btn {
+    margin: 5px;
+}
+
+.page-title-block {
+    text-align: center;
+}
+
+.page-title {
+    margin-bottom: 7.5vh;
+}
+
+.page-title h1,
+h5 {
+    margin: 0;
+}
+
+.control-panel-item {
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+
+.control-panel-item .button-item {
+    margin: 0;
+}
+
+.bgcolorFrames 0% {
+    background-color: #45a3e5
+}
+
+.bgcolorFrames 17% {
+    background-color: #3cc
+}
+
+.bgcolorFrames 34% {
+    background-color: #66bf39
+}
+
+.bgcolorFrames 51% {
+    background-color: #ffa602
+}
+
+.bgcolorFrames 61% {
+    background-color: #eb670f
+}
+
+.bgcolorFrames 84% {
+    background-color: #f35
+}
+
+.bgcolorFrames 100% {
+    background-color: #864cbf
+}
+
+@-webkit-keyframes bgcolor {
+    0% {
+        background-color: #45a3e5
+    }
+    17% {
+        background-color: #3cc
+    }
+    34% {
+        background-color: #66bf39
+    }
+    51% {
+        background-color: #ffa602
+    }
+    61% {
+        background-color: #eb670f
+    }
+    84% {
+        background-color: #f35
+    }
+    100% {
+        background-color: #864cbf
+    }
+}
+
+@keyframes bgcolor {
+    0% {
+        background-color: #45a3e5
+    }
+    17% {
+        background-color: #3cc
+    }
+    34% {
+        background-color: #66bf39
+    }
+    51% {
+        background-color: #ffa602
+    }
+    61% {
+        background-color: #eb670f
+    }
+    84% {
+        background-color: #f35
+    }
+    100% {
+        background-color: #864cbf
+    }
+}
+
+.animate-background {
+    height: 100%;
+    width: 100%;
+    background-color: #45a3e5;
+    -webkit-animation: bgcolor 15s infinite;
+    animation: bgcolor 15s infinite;
+    -webkit-animation-direction: alternate;
+    animation-direction: alternate
+}

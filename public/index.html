@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kahoot Tools</title>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel='stylesheet' href='css/kube.css'>
+    <link rel='stylesheet' href='css/main.css'>
+</head>
+
+<body>
+    <div id='login-panel'>
+        <div class='row page-title-block'>
+            <div class='col col-12 page-title'>
+                <h1>Kahoot Tools</h1> <br/>
+                <h5>Made by @idiidk</h5>
+            </div>
+            <div class='col col-12'>
+                <center>
+                    <div class='form-item'>
+                        <input placeholder='Pin' type='text' id='pin' class='w50'>
+                    </div>
+                    <div class='form-item'>
+                        <input placeholder='Name' type='text' id='name' class='w50'>
+                    </div>
+                    <div class='form-item'>
+                        <button id='activate-pin'>Activatador</button>
+                    </div>
+                </center>
+            </div>
+        </div>
+    </div>
+
+    <div id='control-panel' class="animate-background">
+        <div class='row gutter page-title-block'>
+            <div class='col col-12 page-title'>
+                <h1 class='inverted'>Logged in:</h1> <br/>
+                <h5 id='pin-display' class='inverted'></h5>
+            </div>
+
+            <div id='function-box' class='col col-12 control-panel-item'>
+                <center>
+                    <h4 class='inverted'>Normal Function:</h4>
+                    <div class='form-item button-item'>
+                        <button class='button inverted outline answer-btn' id='answer-0'>Answer Red</button>
+                        <button class='button inverted outline answer-btn' id='answer-1'>Answer Blue</button>
+                    </div>
+  
+                    <div class='form-item button-item'>
+                        <button class='button inverted outline answer-btn' id='answer-2'>Answer Yellow</button>
+                        <button class='button inverted outline answer-btn' id='answer-3'>Answer Green</button>
+                    </div>
+
+                    <h4 class='inverted'>Lets cause some damage:</h4>
+                    <div class='form-item button-item'>
+                        <button class='button inverted outline' id='crash-btn'>Crash Game (Only works with more than one player, No going back...)</button>
+                    </div>
+                </center>
+            </div>
+        </div>
+    </div>
+
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+    <script src='js/kube.js'></script>
+    <script src='js/kahoot.v3.js'></script>
+    <script src='js/main.js'></script>
+</body>
+
+</html>
