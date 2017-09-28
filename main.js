@@ -1,10 +1,9 @@
-var express = require('express');
-var path = require('path');
-var unirest = require('unirest');
-var request = require('request');
-
-var httpServer = express();
-var httpPort = process.env.PORT || 8080;
+const express = require('express');
+const path = require('path');
+const cors_proxy = require('cors-anywhere');
+const corsPort = process.env.PORT || 8080;
+const httpServer = express();
+const httpPort = process.env.PORT || 8080;
 
 httpServer.set('port', httpPort);
 
@@ -15,28 +14,9 @@ var server = httpServer.listen(httpServer.get('port'), function () {
     console.log('Magic httpServer on port ' + port);
 });
 
-httpServer.use('/', function (req, res) {
-    var url = req.url;
-    while (url.charAt(0) === '/') {
-        url = url.substr(1);
-    }
-    if (url.indexOf('kahoot.it') !== -1) {
-        unirest.get(url)
-            .end(function (response) {
-                if (!response.err) {
-                    var headers = response.headers || [];
-                    headers['Access-Control-Allow-Origin'] = '*';
-                    headers['Access-Control-Allow-Headers'] = 'X-Requested-With';
-                    headers['Access-Control-Expose-Headers'] = 'x-kahoot-session-token';
-                    res.status(headers).write(JSON.stringify(response.body));
-                    res.end(res.status);
-                } else {
-                    res.write(JSON.stringify(response.error));
-                    res.end();
-                }
-            });
-
-    } else {
-        res.end();
-    }
+cors_proxy.createServer({
+    originWhitelist: [], // Allow all origins
+    requireHeader: ['origin', 'x-requested-with']
+}).listen(port, host, function () {
+    console.log('Running CORS Anywhere on ' + host + ':' + port);
 });
