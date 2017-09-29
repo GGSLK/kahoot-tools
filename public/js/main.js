@@ -1,21 +1,30 @@
 var kahoot = null;
 var runningTimer = null;
-var proxy = document.location.href;
+var proxy = 'http://' + window.location.hostname + ':8080/';
 $('#activate-pin').click(function () {
     var originalText = $('#activate-pin').text();
     $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
         return !v;
     });
     kahoot = new Kahoot($('#pin').val(), $('#name').val(), proxy);
-    kahoot.connect(function (data) {
+    kahoot.connect(function (success) {
         $('#activate-pin').prop('disabled', function (i, v) {
             return !v;
         });
-        if (!data.error) {
-            $('#login-panel').fadeOut(500, function () {
-                updateSessionText();
-                $('#control-panel').fadeIn(500);
-            });
+        if (success) {
+            let waitTillActive = setInterval(function () {
+                if (kahoot.state === 1) {
+                    clearInterval(waitTillActive);
+                    kahoot.bruteForceTwoFactor();
+                    $('#login-panel').fadeOut(500, function () {
+                        updateSessionText();
+                        $('#control-panel').fadeIn(500);
+                    });
+                } else if(kahoot.state === 3 && kahoot.error) {
+                    console.log(kahoot.error);
+                    $('#activate-pin').text(kahoot.error);
+                }
+            }, 100)
         } else {
             $('#activate-pin').animation('shake');
             $('#activate-pin').text(originalText);
@@ -31,7 +40,7 @@ $('#crash-btn').click(function () {
         runningTimer = setInterval(function () {
             for (var i = 0; i < 5500; i++) {
                 if (runningTimer) {
-                    kahoot.sendAnswerPayload(0);
+                    kahoot.sendGameAnswer(0);
                 }
             }
         }, 1);
@@ -40,19 +49,19 @@ $('#crash-btn').click(function () {
 });
 
 $('#answer-0').click(function () {
-    kahoot.sendAnswerPayload(0);
+    kahoot.sendGameAnswer(0);
 });
 
 $('#answer-1').click(function () {
-    kahoot.sendAnswerPayload(1);
+    kahoot.sendGameAnswer(1);
 });
 
 $('#answer-2').click(function () {
-    kahoot.sendAnswerPayload(2);
+    kahoot.sendGameAnswer(2);
 });
 
 $('#answer-3').click(function () {
-    kahoot.sendAnswerPayload(3);
+    kahoot.sendGameAnswer(3);
 });
 
 function updateSessionText() {

@@ -1,22 +1,23 @@
 const express = require('express');
 const path = require('path');
-const cors_proxy = require('cors-anywhere');
-const corsPort = process.env.PORT || 8080;
-const httpServer = express();
-const httpPort = process.env.PORT || 3000;
+const request = require('request');
+const cors_anywhere = require('cors-anywhere');
+const app = express();
+const port = process.env.PORT || 3000;
+const corsport = process.env.CORSPORT || 8080;
 
-httpServer.set('port', httpPort);
+app.set('port', port);
 
-httpServer.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-var server = httpServer.listen(httpServer.get('port'), function () {
+var server = app.listen(app.get('port'), function () {
     var port = server.address().port;
-    console.log('Magic httpServer on port ' + port);
+    console.log('Magic app on port ' + port);
 });
 
-cors_proxy.createServer({
+cors_anywhere.createServer({
     originWhitelist: [], // Allow all origins
     requireHeader: ['origin', 'x-requested-with']
-}).listen(corsPort, function () {
-    console.log('Running CORS Anywhere on port ' + corsPort);
+}).listen(corsport, function () {
+    console.log('Running CORS Anywhere on port ' + corsport);
 });

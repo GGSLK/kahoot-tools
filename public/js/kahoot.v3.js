@@ -7,13 +7,12 @@ class Kahoot {
         this.webSocketUrl = 'wss://kahoot.it/cometd';
         this.websocket = null;
         this.ackCount = 0;
-        this.subId = 12;
+        this.subId = 0;
         this.questionNum = 0;
         this.solvedChallenge = '';
         this.session = '';
         this.clientId = '';
         this.rawSession = '';
-        this.onMessage = function (data) {};
 
         this.http = new class HTTP {
             constructor() {
@@ -82,12 +81,17 @@ class Kahoot {
         this.setupSession(function (session) {
             if (!session.error) {
                 _this.websocket = new WebSocket(_this.webSocketUrl + '/' + _this.pin + '/' + _this.session);
-                _this.sendFirstConnPayload(function (data) {
-                    _this.stayConnected();
-                    _this.setName();
-                    if (typeof callback === 'function') {
-                        callback(session);
-                    }
+                _this.websocket.onmessage = function (data) {
+                    _this.onWebSocketData(data, _this);
+                };
+                _this.handshake(function (data) {
+                    _this.subscribe(function () {
+                        _this.stayConnected();
+                        _this.setName();
+                        if (typeof callback === 'function') {
+                            callback(session);
+                        }
+                    })
                 });
             } else {
                 callback(session);
@@ -111,7 +115,7 @@ class Kahoot {
                 }
             }
         }], function (data) {
-            setTimeout(function() {
+            setTimeout(function () {
                 _this.stayConnected();
             }, 5000);
         });
@@ -128,14 +132,35 @@ class Kahoot {
             },
             "id": this.getSubId(),
             "clientId": this.clientId
-        }], function (data) {
-
-        });
+        }], function (data) {});
     }
 
-    sendFirstConnPayload(callback) {
+    subscribe(callback) {
         var _this = this;
-        _this.sendReturnData([{
+        var subscribe_order = ["subscribe", "unsubscribe", "subscribe"];
+        var subscribe_text = ["controller", "player", "status"];
+        for (var x = 0; x < 3; x++) {
+            for (var y = 0; y < 3; y++) {
+                this.send([{
+                    "channel": "/meta/" + subscribe_text[y],
+                    "clientId": _this.clientId,
+                    "ext": {
+                        "timesync": {
+                            "l": _this.getL(),
+                            "o": _this.getO(),
+                            "tc": _this.getTC()
+                        }
+                    },
+                    "id": _this.getSubId(),
+                    "subscription": "/service/" + subscribe_order[x]
+                }]);
+            }
+        }
+    }
+
+    handshake(callback) {
+        var _this = this;
+        _this.send([{
             "version": "1.0",
             "minimumVersion": "1.0",
             "channel": "/meta/handshake",
@@ -144,127 +169,51 @@ class Kahoot {
                 "timeout": 60000,
                 "interval": 0
             },
-            "id": "1",
+            "id": _this.getSubId(),
             "ext": {
                 "ack": true,
                 "timesync": {
                     "tc": _this.getTC(),
-                    "l": 0,
-                    "o": 0
+                    "l": _this.getL(),
+                    "o": _this.getO()
                 }
             }
-        }], function (msg) {
-            _this.clientId = msg[0].clientId;
-            _this.send([{
-                "channel": "/meta/subscribe",
-                "subscription": "/service/controller",
-                "id": "2",
-                "clientId": _this.clientId,
-                "ext": {
-                    "timesync": {
-                        "tc": _this.getTC(),
-                        "l": 103,
-                        "o": 85
-                    }
+        }], function () {
+            var tempInterval = setInterval(function () {
+                if (_this.clientId) {
+                    clearInterval(tempInterval);
+                    callback();
                 }
-            }], function (data) {
-                _this.send([{
-                    "channel": "/meta/subscribe",
-                    "subscription": "/service/player",
-                    "id": "3",
-                    "clientId": _this.clientId,
-                    "ext": {
-                        "timesync": {
-                            "tc": _this.getTC(),
-                            "l": 103,
-                            "o": 85
-                        }
-                    }
-                }], function (data) {
-                    _this.send([{
-                        "channel": "/meta/subscribe",
-                        "subscription": "/service/status",
-                        "id": "4",
-                        "clientId": _this.clientId,
-                        "ext": {
-                            "timesync": {
-                                "tc": _this.getTC(),
-                                "l": 103,
-                                "o": 85
-                            }
-                        }
-                    }], function (data) {
-                        _this.send([{
-                            "channel": "/service/controller",
-                            "data": {
-                                "type": "login",
-                                "gameid": _this.pin,
-                                "host": "kahoot.it",
-                                "name": _this.name
-                            },
-                            "id": "22",
-                            "clientId": _this.clientId
-                        }], function (data) {
-                            _this.send([{
-                                "channel": "/meta/connect",
-                                "connectionType": "websocket",
-                                "id": "12",
-                                "clientId": _this.clientId,
-                                "ext": {
-                                    "ack": _this.getAck(),
-                                    "timesync": {
-                                        "tc": _this.getTC(),
-                                        "l": 33,
-                                        "o": 13
-                                    }
-                                }
-                            }], function (data) {
-                                callback(data)
-                            });
-                        })
-                    });
-                })
-            });
+            }, 300)
         });
-
     }
 
     onWebSocketData(data, _this) {
         var dataParsed = JSON.parse(data.data);
         if (dataParsed[0].channel === '/service/player') {
-            var content = JSON.parse(dataParsed[0].data.content);
-            _this.onMessage({
-                id: dataParsed[0].data.id,
-                content: content,
-                rawData: dataParsed[0].data,
-                rawMessage: dataParsed[0]
-            });
+            if (dataParsed[0].id === 51) {
+                console.log(data)
+            }
+            console.log(dataParsed[0])
+        } else if (dataParsed[0].channel === '/meta/handshake') {
+            if (dataParsed[0].clientId) {
+                _this.clientId = dataParsed[0].clientId;
+            }
         }
-    }
-
-    sendReturnData(payload, callback) {
-        var _this = this;
-        this.waitForSocketConnection(this.websocket, function () {
-            _this.websocket.send(JSON.stringify(payload));
-            _this.websocket.onmessage = function (data) {
-                _this.websocket.onmessage = function (data) {
-                    _this.onWebSocketData(data, _this);
-                }
-                callback(JSON.parse(data.data));
-            };
-        });
     }
 
     send(payload, callback) {
         var _this = this;
         this.waitForSocketConnection(this.websocket, function () {
             _this.websocket.send(JSON.stringify(payload));
-            callback();
+            if (typeof callback === 'function') {
+                callback();
+            }
         });
     }
 
     getSubId() {
-        this.subId = +1;
+        this.subId += 1;
         return this.subId;
     }
 
@@ -275,6 +224,14 @@ class Kahoot {
 
     getTC() {
         return new Date().getTime();
+    }
+
+    getO() {
+        return -14;
+    }
+
+    getL() {
+        return 0;
     }
 
     waitForSocketConnection(socket, callback) {
@@ -300,7 +257,6 @@ class Kahoot {
             if (xhr.status !== 404) {
                 _this.rawSession = xhr.getResponseHeader('x-kahoot-session-token');
                 _this.solvedChallenge = _this.solveChallenge(JSON.parse(xhr.responseText).challenge);
-                console.log(xhr.getAllResponseHeaders());
                 _this.session = _this.shiftBits();
                 callback({
                     error: false,
