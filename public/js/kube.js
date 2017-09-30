@@ -1984,7 +1984,7 @@ if (typeof jQuery === 'undefined') {throw new Error('Kube\'s requires jQuery')};
     		// enter
     		this.$modal.find('input[type=text],input[type=url],input[type=email]').on('keydown.' + this.namespace, $.proxy(this.handleEnter, this));
 
-    		this.callback('open');
+    		//this.callback('open');
     		this.$modal.animation(this.opts.animationOpen, $.proxy(this.onOpened, this));
         },
         close: function(e)
@@ -2046,7 +2046,7 @@ if (typeof jQuery === 'undefined') {throw new Error('Kube\'s requires jQuery')};
     		$.ajax({
     			url: this.opts.url + '?' + new Date().getTime(),
     			cache: false,
-    			type: 'post',
+    			type: 'get',
     			data: this.getData(),
     			success: $.proxy(function(data)
     			{

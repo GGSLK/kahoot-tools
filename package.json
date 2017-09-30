@@ -23,6 +23,7 @@
   "dependencies": {
     "cors-anywhere": "^0.4.0",
     "express": "^4.15.5",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "serve-static": "^1.13.1"
   }
 }

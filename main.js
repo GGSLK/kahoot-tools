@@ -1,4 +1,5 @@
 const express = require('express');
+const serveStatic = require('serve-static');
 const path = require('path');
 const request = require('request');
 const cors_anywhere = require('cors-anywhere');
@@ -8,7 +9,7 @@ const corsport = process.env.CORSPORT || 8080;
 
 app.set('port', port);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(serveStatic(path.join(__dirname, 'public')))
 
 var server = app.listen(app.get('port'), function () {
     var port = server.address().port;
