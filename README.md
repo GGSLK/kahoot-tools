@@ -1,0 +1,33 @@
+# Kahoot Tools
+
+A simple website for fucking with kahoot games.
+
+## Installation
+
+To install, just clone this repo and run ```npm i && node main.js``` in the cloned directory. 
+Open a web browser and visit your ip with the specified port.
+
+## Usage
+
+The website is pretty self explenatory. 2FA is automatically brute-forced and connections are done from the browser (cometd.) 
+The only thing the node script does is run a http server and a cors proxy to retrieve a sessionId from kahoot servers.
+
+## Features
+
+Kahoot Tools currently supports:
+- Full connection with CometD 
+- Single Player / Team Mode / Two Factor Authentication
+- Playing a normal kahoot game
+- Crashing a kahoot game using brute force
+
+## Support
+
+The website works on all browser wich support ES6. Sorry IE but you have to die someday...
+
+## Credits
+
+Thanks to @imperavi for creating the incredible Kube framework wich is used in this project!
+
+## License
+
+MIT - Do whatever the fuck you want.
