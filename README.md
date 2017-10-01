@@ -22,7 +22,7 @@ Kahoot Tools currently supports:
 
 ## Support
 
-The website works on all browser wich support ES6. Sorry IE but you have to die someday...
+The website works on all browser which support ES6. Sorry IE but you have to die someday...
 
 ## Credits
 
