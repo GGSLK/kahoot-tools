@@ -6,15 +6,18 @@ class Kahoot {
         this.apiUrl = this.proxy + url;
         this.cometdUrl = 'wss://kahoot.it/cometd';
         this.cometd = null;
-        this.questionNum = 0;
+        this.answers = null;
+        this.questionNum = null;
         this.state = 0;
+        this.quizName = '';
         this.solvedChallenge = '';
         this.session = '';
         this.clientId = '';
         this.rawSession = '';
+        this.bearerToken = '';
         this.error = '';
 
-        //LISTENERS:
+        //LISTENER CALLBACKS:
         this.onRawMessageController = function (m) {};
         this.onRawMessagePlayer = function (m) {};
         this.onRawMessageStatus = function (m) {};
@@ -74,6 +77,102 @@ class Kahoot {
                 callback(false);
             }
         });
+    }
+
+    //OPTIONAL FUN FUNCTIONS
+    getBearerToken(username, password, callback) {
+        let _this = this;
+        let formData = '';
+        let headers = [];
+        headers.push('x-kahoot-login-gate:enabled');
+        headers.push('Content-Type:application/json');
+
+        formData = {
+            username: username,
+            password: password,
+            grant_type: 'password'
+        }
+        formData = JSON.stringify(formData);
+        this.http.post(this.proxy + 'https://create.kahoot.it/rest/authenticate', {
+            data: formData,
+            headers: headers
+        }, function (data) {
+            if (data.status !== 401) {
+                let json = JSON.parse(data.response);
+                if (typeof callback === 'function') {
+                    if (json.access_token) {
+                        _this.bearerToken = json.access_token;
+                        callback({
+                            error: null,
+                            bearerToken: json.access_token,
+                            expiration: json.expires
+                        });
+                    } else {
+                        callback({
+                            error: 'Auth failed, wrong username or password!'
+                        });
+                    }
+                }
+            } else {
+                if (typeof callback === 'function') {
+                    callback({
+                        error: 'Auth failed, wrong username or password!'
+                    });
+                }
+            }
+        });
+    }
+
+    getGameAnswers(gameName, callback) {
+        let _this = this;
+        if (!this.answers) {
+            let headers = [];
+            headers.push('Authorization: Bearer ' + this.bearerToken);
+            this.http.get(this.proxy + 'https://create.kahoot.it/rest/kahoots/search/public?query=' + gameName + '&limit=100' + '&_=' + new Date().getTime(), {
+                headers: headers
+            }, function (data) {
+                let json = JSON.parse(data.response);
+                let answers = [];
+                let currEntity = 0;
+                if (json.totalHits > 0) {
+                    for(var e = 0; e < json.entities.length; e++) {
+                        if(json.entities[e].title === gameName) {
+                            currEntity = e;
+                        }
+                    }
+                    json = json.entities[currEntity];
+                    console.log(json)
+                    for (var i = 0; i < json.questions.length; i++) {
+                        for (var a = 0; a < json.questions[i].choices.length; a++) {
+                            if (json.questions[i].choices[a].correct === true) {
+                                answers[i] = {
+                                    questionNum: i,
+                                    question: json.questions[i].question,
+                                    answer: json.questions[i].choices[a],
+                                    answerNum: a
+                                };
+                            }
+                        }
+                    }
+                    _this.answers = answers;
+                    callback({
+                        error: null,
+                        answers: answers
+                    })
+                } else {
+                    if (typeof callback === 'function') {
+                        callback({
+                            error: 'No games found!'
+                        });
+                    }
+                }
+            });
+        } else {
+            callback({
+                error: null,
+                answers: _this.answers
+            });
+        }
     }
 
     //MAIN GAME FUNCTIONS
@@ -145,9 +244,20 @@ class Kahoot {
                 player = _this.cometd.subscribe('/service/player', function (m) {
                     _this.onRawMessagePlayer(m);
                     switch (m.data.id) {
+                        case 1:
+                            var tempJson = JSON.parse(m.data.content);
+                            _this.questionNum = tempJson.questionIndex;
+                            break;
+
+                        case 9:
+                            var tempJson = JSON.parse(m.data.content);
+                            _this.quizName = tempJson.quizName;
+                            break;
+
                         case 14:
                             _this.state = 1;
                             break;
+
                         case 53:
                             //TODO - callback two factor req
                             _this.state = 2;

@@ -27,6 +27,17 @@
                     <div class='form-item'>
                         <input placeholder='Name' type='text' id='name' class='w50'>
                     </div>
+                    <br/>
+                    <h5 id='kahoot-web-login-text'>To retrieve answers please login, (this is not required):</h5> <br/>
+                    <div id='kahoot-web-login' style='display: none'>
+                        <div class='form-item'>
+                            <input placeholder='Kahoot Username' type='text' id='kahoot-username' class='w50'>
+                        </div>
+                        <div class='form-item'>
+                            <input placeholder='Kahoot Password' type='text' id='kahoot-password' class='w50'>
+                        </div>
+                    </div>
+                    <br/>
                     <div class='form-item'>
                         <button id='activate-pin'>Activatador</button>
                     </div>
@@ -55,6 +66,11 @@
                         <button class='button inverted outline answer-btn' id='answer-3'>Answer Green</button>
                     </div>
 
+                    <h4 class='inverted'>Crazy hacks:</h4>
+                    <div class='form-item button-item'>
+                        <button class='button inverted outline' id='send-correct-answer-btn'>Answer current question correctly</button>
+                    </div>
+
                     <h4 class='inverted'>Lets cause some damage:</h4>
                     <div class='form-item button-item'>
                         <button class='button inverted outline' id='crash-btn'>Crash Game (Only works with more than one player, No going back...)</button>
@@ -68,7 +84,7 @@
 
     </div>
 
-
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
