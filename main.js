@@ -3,7 +3,7 @@ const serveStatic = require('serve-static');
 const path = require('path');
 const cors_anywhere = require('cors-anywhere');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 const corsport = process.env.CORSPORT || 8080;
 
 app.set('port', port);
