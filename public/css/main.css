@@ -44,11 +44,30 @@ body {
     border: 0;
     height: 15vh;
     margin-bottom: 2vh;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .twofactorcard[disabled] {
     opacity: 0.3;
+}
+
+.card-0:hover {
+    background-color: #e21b3c;
+    opacity: 0.9;
+}
+
+.card-1:hover {
+    background-color: #1368ce;
+    opacity: 0.9;
+}
+
+.card-2:hover {
+    background-color: #d89e00;
+    opacity: 0.9;
+}
+
+.card-3:hover {
+    background-color: #298f0d;
+    opacity: 0.9;
 }
 
 
