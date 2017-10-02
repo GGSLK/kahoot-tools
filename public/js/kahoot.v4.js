@@ -67,14 +67,16 @@ class Kahoot {
 
     //RUN CONNECT CYCLE
     connect(callback) {
+        let _this = this;
         this.testSession(function (existence) {
             if (existence) {
-                kahoot.createWebsocket(function () {
-                    kahoot.doLogin();
-                    callback(true);
+                _this.createWebsocket(function () {
+                    _this.doLogin(function() {
+                        callback({success: true, error: null, twoFactor: _this.twoFactor});
+                    });
                 });
             } else {
-                callback(false);
+                callback({success: false, error: 'No Session!', twoFactor: _this.twoFactor});
             }
         });
     }
@@ -123,6 +125,7 @@ class Kahoot {
         });
     }
 
+    //Get the answers of a kahoot game by name - return answers (callback)
     getGameAnswers(gameName, callback) {
         let _this = this;
         if (!this.answers) {
@@ -135,8 +138,8 @@ class Kahoot {
                 let answers = [];
                 let currEntity = 0;
                 if (json.totalHits > 0) {
-                    for(var e = 0; e < json.entities.length; e++) {
-                        if(json.entities[e].title === gameName) {
+                    for (var e = 0; e < json.entities.length; e++) {
+                        if (json.entities[e].title === gameName) {
                             currEntity = e;
                         }
                     }
@@ -215,7 +218,11 @@ class Kahoot {
             host: 'kahoot.it',
             name: this.name,
             type: 'login'
-        }, function (publishAck) {});
+        }, function (publishAck) {
+            if (typeof callback === 'function') {
+                callback(true);
+            }
+        });
     }
 
     //createWebsocket (startSession) - returns (callback) cometD created using session id and token.
@@ -254,10 +261,6 @@ class Kahoot {
                             _this.quizName = tempJson.quizName;
                             break;
 
-                        case 14:
-                            _this.state = 1;
-                            break;
-
                         case 53:
                             //TODO - callback two factor req
                             _this.state = 2;
@@ -276,6 +279,9 @@ class Kahoot {
                 })
                 status = _this.cometd.subscribe('/service/status', function (m) {
                     _this.onRawMessageStatus(m);
+                    if (m.data.status === 'ACTIVE') {
+                        _this.state = 1;
+                    }
                 })
                 callback();
             }
@@ -289,6 +295,7 @@ class Kahoot {
             if (xhr.status !== 404) {
                 _this.rawSession = xhr.getResponseHeader('x-kahoot-session-token');
                 _this.solvedChallenge = _this.solveChallenge(JSON.parse(xhr.responseText).challenge);
+                _this.twoFactor = JSON.parse(xhr.responseText).twoFactorAuth;
                 _this.session = _this.shiftBits();
                 callback(true);
             } else {

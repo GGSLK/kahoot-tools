@@ -2,7 +2,8 @@
     font-family: 'Nunito', sans-serif !important;
 }
 
-html, body {
+html,
+body {
     padding: 0;
     margin: 0;
     height: 100%;
@@ -37,6 +38,41 @@ body {
     margin: 0;
 }
 
+.twofactorcard {
+    border-radius: 3px;
+    box-shadow: inset 0 -3px rgba(0, 0, 0, .1);
+    border: 0;
+    height: 15vh;
+    margin-bottom: 2vh;
+}
+
+.twofactorcard:hover {
+    opacity: 0.7;
+}
+
+.twofactorcard:active {
+    opacity: 0.5;
+}
+
+.twofactorcard[disabled] {
+    opacity: 0.3;
+}
+
+.card-0 {
+    background-color: #e21b3c
+}
+
+.card-1 {
+    background-color: #1368ce
+}
+
+.card-2 {
+    background-color: #d89e00
+}
+
+.card-3 {
+    background-color: #298f0d
+}
 
 .message {
     margin: 0;

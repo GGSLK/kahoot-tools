@@ -1,9 +1,10 @@
 var kahoot = null;
 var runningTimer = null;
+var twofactorCode = '';
 var proxy = 'http://' + window.location.hostname + ':8080/';
 
 $(function () {
-    if (typeof (Storage) !== "undefined") {
+    if (typeof (Storage) !== "undefined" && doesWebStorageWork()) {
         kahoot = new Kahoot(null, null, proxy);
         if (!localStorage.token && !localStorage.tokenExpiration) {
             $('#kahoot-web-login').show();
@@ -19,12 +20,11 @@ $(function () {
         }
     } else {
         alert('This website will not work on this browser. If you are in private mode please leave!');
-        $('html').html('Please use a more up-to-date browser.');
+        $('html').html('Please use a more up-to-date browser or exit private mode on iOS!');
     }
 });
 
 $('#activate-pin').click(function () {
-    var originalText = $('#activate-pin').text();
     $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
         return !v;
     });
@@ -47,34 +47,13 @@ $('#activate-pin').click(function () {
                     } else {
                         kahoot.bearerToken = localStorage.token;
                         $('#kahoot-web-login').fadeOut();
+                        $('#kahoot-web-login-text').text('Kahoot logged in: ' + localStorage.token);
+                        $('#activate-pin').prop('disabled', function (i, v) {
+                            return !v;
+                        });
                     }
                 }
-                kahoot.connect(function (success) {
-                    $('#activate-pin').prop('disabled', function (i, v) {
-                        return !v;
-                    });
-                    if (success) {
-                        let waitTillActive = setInterval(function () {
-                            if (kahoot.state === 1) {
-                                clearInterval(waitTillActive);
-                                kahoot.bruteForceTwoFactor();
-                                $('#login-panel').fadeOut(500, function () {
-                                    updateSessionText();
-                                    $('#control-panel').fadeIn(500);
-                                });
-                            } else if (kahoot.state === 3 && kahoot.error) {
-                                sendMessage('warning', 'Error', kahoot.error);
-                                $('#activate-pin').animation('shake');
-                                $('#activate-pin').text(originalText);
-                                clearInterval(waitTillActive);
-                            }
-                        }, 100)
-                    } else {
-                        sendMessage('warning', 'Error', 'Pin incorrect');
-                        $('#activate-pin').animation('shake');
-                        $('#activate-pin').text(originalText);
-                    }
-                });
+                connect();
             } else {
                 sendMessage('error', 'Error', bearer.error);
                 $('#activate-pin').animation('shake');
@@ -84,32 +63,7 @@ $('#activate-pin').click(function () {
             }
         });
     } else {
-        kahoot.connect(function (success) {
-            $('#activate-pin').prop('disabled', function (i, v) {
-                return !v;
-            });
-            if (success) {
-                let waitTillActive = setInterval(function () {
-                    if (kahoot.state === 1) {
-                        clearInterval(waitTillActive);
-                        kahoot.bruteForceTwoFactor();
-                        $('#login-panel').fadeOut(500, function () {
-                            updateSessionText();
-                            $('#control-panel').fadeIn(500);
-                        });
-                    } else if (kahoot.state === 3 && kahoot.error) {
-                        sendMessage('warning', 'Error', kahoot.error);
-                        $('#activate-pin').animation('shake');
-                        $('#activate-pin').text(originalText);
-                        clearInterval(waitTillActive);
-                    }
-                }, 100)
-            } else {
-                sendMessage('warning', 'Error', 'Pin incorrect');
-                $('#activate-pin').animation('shake');
-                $('#activate-pin').text(originalText);
-            }
-        });
+        connect();
     }
 });
 
@@ -129,19 +83,51 @@ $('#crash-btn').click(function () {
 });
 
 $('#answer-0').click(function () {
-    kahoot.sendGameAnswer(0);
+    kahoot.sendGameAnswer(0, function (data) {
+        if (data.final) {
+            if (data.correct) {
+                showControlPanel();
+            } else {
+                resetTwoFactor();
+            }
+        }
+    });
 });
 
 $('#answer-1').click(function () {
-    kahoot.sendGameAnswer(1);
+    kahoot.sendGameAnswer(1, function (data) {
+        if (data.final) {
+            if (data.correct) {
+                showControlPanel();
+            } else {
+                resetTwoFactor();
+            }
+        }
+    });
 });
 
 $('#answer-2').click(function () {
-    kahoot.sendGameAnswer(2);
+    kahoot.sendGameAnswer(2, function (data) {
+        if (data.final) {
+            if (data.correct) {
+                showControlPanel();
+            } else {
+                resetTwoFactor();
+            }
+        }
+    });
 });
 
 $('#answer-3').click(function () {
-    kahoot.sendGameAnswer(3);
+    kahoot.sendGameAnswer(3, function (data) {
+        if (data.final) {
+            if (data.correct) {
+                showControlPanel();
+            } else {
+                resetTwoFactor();
+            }
+        }
+    });
 });
 
 $('#send-correct-answer-btn').click(function () {
@@ -170,6 +156,107 @@ $('#changelog-button').click(function () {
     openModal('changelog.html');
 });
 
+function resetTwoFactor() {
+    $('.twofactorcard').prop('disabled', false);
+}
+
+function addToTwoFactorCode(code) {
+    twofactorCode = twofactorCode + code;
+    if (twofactorCode.length === 4) {
+        kahoot.twoFactorLogin(twofactorCode);
+        let waitTillActive = setInterval(function () {
+            console.log(kahoot.state)
+            if (kahoot.state === 1) {
+                clearInterval(waitTillActive);
+                showControlPanel();
+                closeAllModals();
+                
+            } else if (kahoot.state === 2) {
+                clearInterval(waitTillActive);
+                kahoot.state = 0;
+                twofactorCode = '';
+                resetTwoFactor();
+            }
+        }, 100)
+    } else {
+        if (typeof callback === 'function') {
+            callback({
+                final: false,
+                correct: false
+            });
+        }
+    }
+}
+
+function connect() {
+    let originalText = $('#activate-pin').text();
+    kahoot.connect(function (response) {
+        $('#activate-pin').prop('disabled', function (i, v) {
+            return !v;
+        });
+        if (response.success) {
+            let waitTillActive = setInterval(function () {
+                if (kahoot.state === 1) {
+                    clearInterval(waitTillActive);
+                    //kahoot.bruteForceTwoFactor();
+                    if (kahoot.twoFactor) {
+                        openModal('2fa.html', false, function() {
+                            $('#twofactor-btn-0').click(function () {
+                                $('#twofactor-btn-0').prop('disabled', true);
+                                addToTwoFactorCode(0);
+                            });
+                            
+                            $('#twofactor-btn-1').click(function () {
+                                $('#twofactor-btn-1').prop('disabled', true);
+                                addToTwoFactorCode(1);
+                            });
+                            
+                            $('#twofactor-btn-2').click(function () {
+                                $('#twofactor-btn-2').prop('disabled', true);
+                                addToTwoFactorCode(2);
+                            });
+                            
+                            $('#twofactor-btn-3').click(function () {
+                                $('#twofactor-btn-3').prop('disabled', true);
+                                addToTwoFactorCode(3);
+                            });
+                        });
+                    } else {
+                        showControlPanel();
+                    }
+                } else if (kahoot.state === 3 && kahoot.error) {
+                    clearInterval(waitTillActive);
+                    sendMessage('warning', 'Error', kahoot.error);
+                    $('#activate-pin').animation('shake');
+                    $('#activate-pin').text(originalText);
+                }
+            }, 100)
+        } else {
+            sendMessage('warning', 'Error', 'Pin incorrect');
+            $('#activate-pin').animation('shake');
+            $('#activate-pin').text(originalText);
+        }
+    });
+}
+
+function showControlPanel() {
+    $('#login-panel').fadeOut(500, function () {
+        updateSessionText();
+        $('#control-panel').fadeIn(500);
+    });
+}
+
+function doesWebStorageWork() {
+    try {
+        let id = makeId();
+        localStorage.setItem('check-' + id, '1');
+        localStorage.removeItem('check-' + id);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function updateSessionText() {
     $('#pin-display').text('Pin: ' + kahoot.pin + ' - Name: ' + kahoot.name);
 }
@@ -184,12 +271,20 @@ function makeId() {
     return text;
 }
 
-function openModal(html) {
+function closeAllModals() {
+    $('.overlay').fadeOut(function(){$('.overlay').remove()});
+}
+
+function openModal(html, closable = true, callback) {
     let id = makeId();
-    $('body').append('<div class="overlay" style="display: none;" onclick="$(\'#' + id + '\').fadeOut(function(){$(\'#' + id + '\').remove()})" id="' + id + '"></div>');
+    let closeCode = closable ? 'onclick="$(\'#' + id + '\').fadeOut(function(){$(\'#' + id + '\').remove()})"' : '';
+    $('body').append('<div class="overlay" style="display: none;" ' + closeCode + ' id="' + id + '"></div>');
     $('#' + id).fadeIn();
     $.get(html, function (data) {
         $('#' + id).append(data);
+        if(typeof callback === 'function') {
+            callback();
+        }
     })
 }
 
