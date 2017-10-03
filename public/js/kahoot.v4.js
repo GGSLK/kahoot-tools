@@ -82,6 +82,8 @@ class Kahoot {
     }
 
     //OPTIONAL FUN FUNCTIONS
+
+    //getBearerToken - gets bearer token by loggin in to kahoot, returns (callback) object
     getBearerToken(username, password, callback) {
         let _this = this;
         let formData = '';
@@ -125,7 +127,7 @@ class Kahoot {
         });
     }
 
-    //Get the answers of a kahoot game by name - return answers (callback)
+    //Get the answers of a kahoot game by name - returns (callback) answers
     getGameAnswers(gameName, callback) {
         let _this = this;
         if (!this.answers) {
@@ -211,7 +213,15 @@ class Kahoot {
         }, function (publishAck) {});
     }
 
-    //doHandshake - returns (callback) boolean success
+    //doLogout - returns (callback) boolean success
+    doLogout(callback) {
+        this.state = 0;
+        this.cometd.disconnect(function() {
+            callback(true);
+        });
+    }
+
+    //doLogin - returns (callback) boolean success
     doLogin(callback) {
         this.cometd.publish('/service/controller', {
             gameid: this.pin,
@@ -262,17 +272,14 @@ class Kahoot {
                             break;
 
                         case 53:
-                            //TODO - callback two factor req
                             _this.state = 2;
                             break;
 
                         case 52:
-                            //TODO - callback two factor correct
                             _this.state = 1;
                             break;
 
                         case 51:
-                            //TODO - callback two factor incorrect
                             _this.state = 2
                             break;
                     }

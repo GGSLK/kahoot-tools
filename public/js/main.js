@@ -25,9 +25,6 @@ $(function () {
 });
 
 $('#activate-pin').click(function () {
-    $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
-        return !v;
-    });
     let username = $('#kahoot-username').val();
     let password = $('#kahoot-password').val();
     kahoot.pin = $('#pin').val();
@@ -66,6 +63,63 @@ $('#activate-pin').click(function () {
         connect();
     }
 });
+
+
+function connect() {
+    let originalText = $('#activate-pin').text();
+    $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
+        return !v;
+    });
+    kahoot.connect(function (response) {
+        $('#activate-pin').prop('disabled', function (i, v) {
+            return !v;
+        });
+        if (response.success) {
+            let waitTillActive = setInterval(function () {
+                if (kahoot.state === 1) {
+                    clearInterval(waitTillActive);
+                    //kahoot.bruteForceTwoFactor();
+                    if (kahoot.twoFactor) {
+                        openModal('2fa.html', false, function () {
+                            $('#twofactor-btn-0').click(function () {
+                                $('#twofactor-btn-0').prop('disabled', true);
+                                addToTwoFactorCode(0);
+                            });
+
+                            $('#twofactor-btn-1').click(function () {
+                                $('#twofactor-btn-1').prop('disabled', true);
+                                addToTwoFactorCode(1);
+                            });
+
+                            $('#twofactor-btn-2').click(function () {
+                                $('#twofactor-btn-2').prop('disabled', true);
+                                addToTwoFactorCode(2);
+                            });
+
+                            $('#twofactor-btn-3').click(function () {
+                                $('#twofactor-btn-3').prop('disabled', true);
+                                addToTwoFactorCode(3);
+                            });
+                        });
+                    } else {
+                        showControlPanel();
+                    }
+                } else if (kahoot.state === 3 && kahoot.error) {
+                    clearInterval(waitTillActive);
+                    sendMessage('warning', 'Error', kahoot.error);
+                    $('#activate-pin').animation('shake');
+                    $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
+                        return !v;
+                    });
+                }
+            }, 100)
+        } else {
+            sendMessage('warning', 'Error', 'Pin incorrect');
+            $('#activate-pin').animation('shake');
+            $('#activate-pin').text(originalText);
+        }
+    });
+}
 
 $('#crash-btn').click(function () {
     if (runningTimer) {
@@ -170,7 +224,7 @@ function addToTwoFactorCode(code) {
                 clearInterval(waitTillActive);
                 showControlPanel();
                 closeAllModals();
-                
+
             } else if (kahoot.state === 2) {
                 clearInterval(waitTillActive);
                 kahoot.state = 0;
@@ -186,57 +240,6 @@ function addToTwoFactorCode(code) {
             });
         }
     }
-}
-
-function connect() {
-    let originalText = $('#activate-pin').text();
-    kahoot.connect(function (response) {
-        $('#activate-pin').prop('disabled', function (i, v) {
-            return !v;
-        });
-        if (response.success) {
-            let waitTillActive = setInterval(function () {
-                if (kahoot.state === 1) {
-                    clearInterval(waitTillActive);
-                    //kahoot.bruteForceTwoFactor();
-                    if (kahoot.twoFactor) {
-                        openModal('2fa.html', false, function() {
-                            $('#twofactor-btn-0').click(function () {
-                                $('#twofactor-btn-0').prop('disabled', true);
-                                addToTwoFactorCode(0);
-                            });
-                            
-                            $('#twofactor-btn-1').click(function () {
-                                $('#twofactor-btn-1').prop('disabled', true);
-                                addToTwoFactorCode(1);
-                            });
-                            
-                            $('#twofactor-btn-2').click(function () {
-                                $('#twofactor-btn-2').prop('disabled', true);
-                                addToTwoFactorCode(2);
-                            });
-                            
-                            $('#twofactor-btn-3').click(function () {
-                                $('#twofactor-btn-3').prop('disabled', true);
-                                addToTwoFactorCode(3);
-                            });
-                        });
-                    } else {
-                        showControlPanel();
-                    }
-                } else if (kahoot.state === 3 && kahoot.error) {
-                    clearInterval(waitTillActive);
-                    sendMessage('warning', 'Error', kahoot.error);
-                    $('#activate-pin').animation('shake');
-                    $('#activate-pin').text(originalText);
-                }
-            }, 100)
-        } else {
-            sendMessage('warning', 'Error', 'Pin incorrect');
-            $('#activate-pin').animation('shake');
-            $('#activate-pin').text(originalText);
-        }
-    });
 }
 
 function showControlPanel() {
@@ -272,7 +275,9 @@ function makeId() {
 }
 
 function closeAllModals() {
-    $('.overlay').fadeOut(function(){$('.overlay').remove()});
+    $('.overlay').fadeOut(function () {
+        $('.overlay').remove()
+    });
 }
 
 function openModal(html, closable = true, callback) {
@@ -282,7 +287,7 @@ function openModal(html, closable = true, callback) {
     $('#' + id).fadeIn();
     $.get(html, function (data) {
         $('#' + id).append(data);
-        if(typeof callback === 'function') {
+        if (typeof callback === 'function') {
             callback();
         }
     })
