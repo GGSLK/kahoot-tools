@@ -1,5 +1,5 @@
 var kahoot = null;
-var runningTimer = null;
+var runningTimers = [];
 var twofactorCode = '';
 var proxy = 'http://' + window.location.hostname + ':8080/';
 
@@ -25,11 +25,15 @@ $(function () {
 });
 
 $('#activate-pin').click(function () {
+    let originalText = $('#activate-pin').text();
     let username = $('#kahoot-username').val();
     let password = $('#kahoot-password').val();
     kahoot.pin = $('#pin').val();
     kahoot.name = $('#name').val();
     if (username || password) {
+        $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
+            return !v;
+        });
         kahoot.getBearerToken(username, password, function (bearer) {
             if (!bearer.error) {
                 localStorage.setItem('token', bearer.bearerToken);
@@ -50,6 +54,9 @@ $('#activate-pin').click(function () {
                         });
                     }
                 }
+                $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
+                    return !v;
+                });
                 connect();
             } else {
                 sendMessage('error', 'Error', bearer.error);
@@ -67,13 +74,8 @@ $('#activate-pin').click(function () {
 
 function connect() {
     let originalText = $('#activate-pin').text();
-    $('#activate-pin').text('Testing connection...').prop('disabled', function (i, v) {
-        return !v;
-    });
+    $('#activate-pin').text('Testing connection...').prop('disabled', true);
     kahoot.connect(function (response) {
-        $('#activate-pin').prop('disabled', function (i, v) {
-            return !v;
-        });
         if (response.success) {
             let waitTillActive = setInterval(function () {
                 if (kahoot.state === 1) {
@@ -116,71 +118,47 @@ function connect() {
         } else {
             sendMessage('warning', 'Error', 'Pin incorrect');
             $('#activate-pin').animation('shake');
-            $('#activate-pin').text(originalText);
+            $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
+                return !v;
+            });
         }
     });
 }
 
 $('#crash-btn').click(function () {
-    if (runningTimer) {
-        clearInterval(runningTimer);
-        runningTimer = null;
+    if (runningTimers.length >= 1) {
+        for(var i = 0; i < runningTimers.length; i++) {
+            clearInterval(runningTimers[i])
+        }
+        runningTimers = [];
     } else {
-        runningTimer = setInterval(function () {
-            for (var i = 0; i < 2500; i++) {
-                if (runningTimer) {
-                    kahoot.sendGameAnswer(0);
-                }
-            }
-        }, 1);
+        for(var i = 0; i < 10; i++) {
+            runningTimers.push(setInterval(function(){kahoot.sendGameAnswer(1)}, 0.00001));
+        }
     }
 });
 
 $('#answer-0').click(function () {
     kahoot.sendGameAnswer(0, function (data) {
-        if (data.final) {
-            if (data.correct) {
-                showControlPanel();
-            } else {
-                resetTwoFactor();
-            }
-        }
+
     });
 });
 
 $('#answer-1').click(function () {
     kahoot.sendGameAnswer(1, function (data) {
-        if (data.final) {
-            if (data.correct) {
-                showControlPanel();
-            } else {
-                resetTwoFactor();
-            }
-        }
+
     });
 });
 
 $('#answer-2').click(function () {
     kahoot.sendGameAnswer(2, function (data) {
-        if (data.final) {
-            if (data.correct) {
-                showControlPanel();
-            } else {
-                resetTwoFactor();
-            }
-        }
+
     });
 });
 
 $('#answer-3').click(function () {
     kahoot.sendGameAnswer(3, function (data) {
-        if (data.final) {
-            if (data.correct) {
-                showControlPanel();
-            } else {
-                resetTwoFactor();
-            }
-        }
+
     });
 });
 
@@ -219,7 +197,6 @@ function addToTwoFactorCode(code) {
     if (twofactorCode.length === 4) {
         kahoot.twoFactorLogin(twofactorCode);
         let waitTillActive = setInterval(function () {
-            console.log(kahoot.state)
             if (kahoot.state === 1) {
                 clearInterval(waitTillActive);
                 showControlPanel();

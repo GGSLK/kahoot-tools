@@ -71,12 +71,20 @@ class Kahoot {
         this.testSession(function (existence) {
             if (existence) {
                 _this.createWebsocket(function () {
-                    _this.doLogin(function() {
-                        callback({success: true, error: null, twoFactor: _this.twoFactor});
+                    _this.doLogin(function () {
+                        callback({
+                            success: true,
+                            error: null,
+                            twoFactor: _this.twoFactor
+                        });
                     });
                 });
             } else {
-                callback({success: false, error: 'No Session!', twoFactor: _this.twoFactor});
+                callback({
+                    success: false,
+                    error: 'No Session!',
+                    twoFactor: _this.twoFactor
+                });
             }
         });
     }
@@ -133,7 +141,7 @@ class Kahoot {
         if (!this.answers) {
             let headers = [];
             headers.push('Authorization: Bearer ' + this.bearerToken);
-            this.http.get(this.proxy + 'https://create.kahoot.it/rest/kahoots/search/public?query=' + gameName + '&limit=100' + '&_=' + new Date().getTime(), {
+            this.http.get(this.proxy + 'https://create.kahoot.it/rest/kahoots/search/public?query=' + gameName.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,'') + '&limit=100' + '&_=' + new Date().getTime(), {
                 headers: headers
             }, function (data) {
                 let json = JSON.parse(data.response);
@@ -216,8 +224,10 @@ class Kahoot {
     //doLogout - returns (callback) boolean success
     doLogout(callback) {
         this.state = 0;
-        this.cometd.disconnect(function() {
-            callback(true);
+        this.cometd.disconnect(function () {
+            if (typeof callback === 'function') {
+                callback(true);
+            }
         });
     }
 
