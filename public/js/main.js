@@ -15,6 +15,8 @@ $(function () {
                 localStorage.removeItem('tokenExpiration');
             } else {
                 kahoot.bearerToken = localStorage.token;
+                $('#kahoot-username').remove();
+                $('#kahoot-password').remove();
                 $('#kahoot-web-login-text').text('Kahoot logged in: ' + localStorage.token);
             }
         }
@@ -59,7 +61,7 @@ $('#activate-pin').click(function () {
                 });
                 connect();
             } else {
-                sendMessage('error', 'Error', bearer.error);
+                sendMessage('Error', bearer.error);
                 $('#activate-pin').animation('shake');
                 $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                     return !v;
@@ -67,7 +69,14 @@ $('#activate-pin').click(function () {
             }
         });
     } else {
-        connect();
+        if (kahoot.pin && kahoot.name) {
+            connect();
+        } else {
+            $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
+                return !v;
+            });
+            sendMessage('Error', 'No pin or name supplied!');
+        }
     }
 });
 
@@ -108,7 +117,7 @@ function connect() {
                     }
                 } else if (kahoot.state === 3 && kahoot.error) {
                     clearInterval(waitTillActive);
-                    sendMessage('warning', 'Error', kahoot.error);
+                    sendMessage('Error', kahoot.error);
                     $('#activate-pin').animation('shake');
                     $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                         return !v;
@@ -116,7 +125,7 @@ function connect() {
                 }
             }, 100)
         } else {
-            sendMessage('warning', 'Error', 'Pin incorrect');
+            sendMessage('Error', 'Pin incorrect');
             $('#activate-pin').animation('shake');
             $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                 return !v;
@@ -127,13 +136,15 @@ function connect() {
 
 $('#crash-btn').click(function () {
     if (runningTimers.length >= 1) {
-        for(var i = 0; i < runningTimers.length; i++) {
+        for (var i = 0; i < runningTimers.length; i++) {
             clearInterval(runningTimers[i])
         }
         runningTimers = [];
     } else {
-        for(var i = 0; i < 10; i++) {
-            runningTimers.push(setInterval(function(){kahoot.sendGameAnswer(1)}, 0.00001));
+        for (var i = 0; i < 10; i++) {
+            runningTimers.push(setInterval(function () {
+                kahoot.sendGameAnswer(1)
+            }, 0.00001));
         }
     }
 });
@@ -164,10 +175,10 @@ $('#answer-3').click(function () {
 
 $('#send-correct-answer-btn').click(function () {
     if (!kahoot.quizName) {
-        sendMessage('warning', 'Warning', 'Dont have a quiz name... Did you join after the quiz started?');
+        sendMessage('Warning', 'Dont have a quiz name... Did you join after the quiz started?');
     } else {
         if (kahoot.questionNum === null) {
-            sendMessage('warning', 'Warning', 'Dont have a question num yet... Did the quiz start?');
+            sendMessage('Warning', 'Dont have a question num yet... Did the quiz start?');
         } else {
             if (!kahoot.answers) {
                 kahoot.getGameAnswers(kahoot.quizName, function (data) {
@@ -260,7 +271,7 @@ function closeAllModals() {
 function openModal(html, closable = true, callback) {
     let id = makeId();
     let closeCode = closable ? 'onclick="$(\'#' + id + '\').fadeOut(function(){$(\'#' + id + '\').remove()})"' : '';
-    $('body').append('<div class="overlay" style="display: none;" ' + closeCode + ' id="' + id + '"></div>');
+    $('body').prepend('<div class="overlay" style="display: none;" ' + closeCode + ' id="' + id + '"></div>');
     $('#' + id).fadeIn();
     $.get(html, function (data) {
         $('#' + id).append(data);
@@ -270,18 +281,20 @@ function openModal(html, closable = true, callback) {
     })
 }
 
-function sendMessage(type, title, content, closeTime = 2500) {
-    let inv = type === 'warning' || type === '' ? '' : 'inverted';
+function sendMessage(title, content, closeTime = 2500) {
     let id = makeId();
-    var msg = '<div id="' + id + '" class="message ' + type + '" data-component="message"><h5 class="' + inv + '">' + title + '</h5>' + content + '<span class="close small"></span></div>';
+    var msg = '<div id="' + id + '" class="message" data-component="message"><h5>' + title + '</h5>' + content + '<span class="close small"></span></div>';
     $('#message-container').prepend(msg);
-    $('#message-container #' + id).message({
-        animationClose: 'slideUp'
-    }).fadeOut(0).fadeIn().on('closed.message', function () {
-        this.$element.remove();
-    });
+    $('#message-container #' + id).slideUp(0).slideDown().click(function () {
+        $('#message-container #' + id).slideUp(function () {
+            $('#message-container #' + id).remove();
+        });
+    })
+
     setTimeout(function () {
-        $('#message-container #' + id).message('close');
+        $('#message-container #' + id).slideUp(function () {
+            $('#message-container #' + id).remove();
+        });
     }, closeTime);
     return $('#message-container #' + id);
 }
