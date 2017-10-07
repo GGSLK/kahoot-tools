@@ -61,7 +61,7 @@ $('#activate-pin').click(function () {
                 });
                 connect();
             } else {
-                sendMessage('Error', bearer.error);
+                sendMessage('kahoot-color-0', 'Error', bearer.error);
                 $('#activate-pin').animation('shake');
                 $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                     return !v;
@@ -75,7 +75,7 @@ $('#activate-pin').click(function () {
             $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                 return !v;
             });
-            sendMessage('Error', 'No pin or name supplied!');
+            sendMessage('kahoot-color-0', 'Error', 'No pin or name supplied!');
         }
     }
 });
@@ -117,7 +117,7 @@ function connect() {
                     }
                 } else if (kahoot.state === 3 && kahoot.error) {
                     clearInterval(waitTillActive);
-                    sendMessage('Error', kahoot.error);
+                    sendMessage('kahoot-color-0', 'Error', kahoot.error);
                     $('#activate-pin').animation('shake');
                     $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                         return !v;
@@ -125,7 +125,7 @@ function connect() {
                 }
             }, 100)
         } else {
-            sendMessage('Error', 'Pin incorrect');
+            sendMessage('kahoot-color-0', 'Error', 'Pin incorrect');
             $('#activate-pin').animation('shake');
             $('#activate-pin').text(originalText).prop('disabled', function (i, v) {
                 return !v;
@@ -175,17 +175,17 @@ $('#answer-3').click(function () {
 
 $('#send-correct-answer-btn').click(function () {
     if (!kahoot.quizName) {
-        sendMessage('Warning', 'Dont have a quiz name... Did you join after the quiz started?');
+        sendMessage('kahoot-color-2', 'Warning', 'Dont have a quiz name... Did you join after the quiz started?');
     } else {
         if (kahoot.questionNum === null) {
-            sendMessage('Warning', 'Dont have a question num yet... Did the quiz start?');
+            sendMessage('kahoot-color-2', 'Warning', 'Dont have a question num yet... Did the quiz start?');
         } else {
             if (!kahoot.answers) {
                 kahoot.getGameAnswers(kahoot.quizName, function (data) {
                     if (!data.error) {
                         kahoot.sendGameAnswer(data.answers[kahoot.questionNum].answerNum);
                     } else {
-                        sendMessage('error', 'Error', data.error);
+                        sendMessage('kahoot-color-1', 'Error', data.error);
                     }
                 });
             } else {
@@ -281,9 +281,9 @@ function openModal(html, closable = true, callback) {
     })
 }
 
-function sendMessage(title, content, closeTime = 2500) {
+function sendMessage(color = 'indigo darken-1', title, content, closeTime = 2500) {
     let id = makeId();
-    var msg = '<div id="' + id + '" class="message" data-component="message"><h5>' + title + '</h5>' + content + '<span class="close small"></span></div>';
+    var msg = '<div id="' + id + '" class="card ' + color + '"><div class="card-content white-text"><span class="card-title">' + title + '</span><p>' + content + '</p></div></div>';
     $('#message-container').prepend(msg);
     $('#message-container #' + id).slideUp(0).slideDown().click(function () {
         $('#message-container #' + id).slideUp(function () {

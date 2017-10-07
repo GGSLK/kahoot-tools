@@ -61,9 +61,15 @@ a {
 }
 
 #message-container {
-    position: absolute;
-    bottom: 0;
-    width: 100vw;
+    z-index: 200;
+    position: fixed;
+    bottom: -20px;
+    width: 100%;
+    padding: 20px;
+}
+
+#message-container .card {
+    width: 100%;
 }
 
 #changelog-list p {
@@ -116,10 +122,6 @@ a {
 
 .kahoot-color-3 {
     background-color: #298f0d !important;
-}
-
-.message {
-    margin: 0;
 }
 
 .answer-btn {
