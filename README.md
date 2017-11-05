@@ -22,12 +22,12 @@ Kahoot Tools currently supports:
 
 ## Support
 
-The website works on all browser which support ES6. Sorry IE but you have to die someday...
+The website works on all browser which support ES6.
 
 ## Credits
 
-Thanks to @imperavi for creating the incredible Kube framework wich is used in this project!
+Thanks to @imperavi for creating the incredible Kube framework which is used in this project!
 
 ## License
 
-MIT - Do whatever the fuck you want.
+MIT
