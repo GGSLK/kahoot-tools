@@ -1,5 +1,6 @@
 * {
     font-family: 'Nunito', sans-serif !important;
+    color: white;
 }
 
 html,
@@ -13,17 +14,6 @@ body,
 html {
     font-family: montserrat, "helvetica neue", helvetica, arial, sans-serif;
     background-color: #2c2e33;
-}
-
-* {
-    color: white;
-}
-
-::-webkit-scrollbar {
-    width: 0px;
-    /* remove scrollbar space */
-    background: transparent;
-    /* optional: just make scrollbar invisible */
 }
 
 li.collection-item {
@@ -48,7 +38,6 @@ a {
 #control-panel {
     display: none;
     height: 100vh;
-    overflow: hidden;
     padding: 20px;
 }
 
@@ -74,6 +63,13 @@ a {
 
 #changelog-list p {
     margin: 0;
+}
+
+.no-margin {
+    margin: 0 !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .twofactorcard {
@@ -204,4 +200,26 @@ h5 {
 
 .input-field {
     margin-bottom: 5vh;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(160, 160, 160, 0.8); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(160, 160, 160, 0.8); 
 }

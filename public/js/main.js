@@ -195,6 +195,21 @@ $('#send-correct-answer-btn').click(function () {
     }
 });
 
+$('#flood-btn').click(function () {
+    let bots = $('#bot-amount').val();
+    let name = $('#bot-name-prefix').val();
+    if (bots) {
+        for (var i = 0; i <= bots; i++) {
+            new Kahoot(kahoot.pin, name + i, proxy).connect(function () {
+
+            });
+        }
+        sendMessage("kahoot-color-3", "Success", "Successfully sent " + bots + " bots!");
+    } else {
+        sendMessage("kahoot-color-2", "Error", "No bot amount specified")
+    }
+});
+
 $('#changelog-button').click(function () {
     openModal('changelog.html');
 });
