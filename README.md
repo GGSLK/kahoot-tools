@@ -9,7 +9,7 @@ Open a web browser and visit your ip with the specified port. You can also visit
 
 ## Usage
 
-The website is pretty self explenatory. 2FA is automatically brute-forced and connections are done from the browser (cometd.) 
+The website is pretty self explenatory. 2FA is prompted and connections are done from the browser (cometd.) 
 The only thing the node script does is run a http server and a cors proxy to retrieve a sessionId from kahoot servers.
 
 ## Features
