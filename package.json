@@ -1,7 +1,7 @@
 {
   "name": "kahoot-tools",
   "version": "0.3.4",
-  "description": "A set of tools for manipulating kahoot in fun ways. Currenly testing...",
+  "description": "A set of tools for manipulating kahoot in fun ways.",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
