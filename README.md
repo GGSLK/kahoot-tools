@@ -15,19 +15,15 @@ The only thing the node script does is run a http server and a cors proxy to ret
 ## Features
 
 Kahoot Tools currently supports:
-- Full connection with CometD 
+- Full connection with CometD.
 - Single Player / Team Mode / Two Factor Authentication
-- Playing a normal kahoot game
-- Crashing a kahoot game using brute force
+- Playing a normal kahoot game.
+- Crashing a kahoot game using brute force.
 
 ## Support
 
 The website works on all browser which support ES6.
 
-## Credits
-
-Thanks to @imperavi for creating the incredible Kube framework which is used in this project!
-
 ## License
 
-MIT
+MiT
