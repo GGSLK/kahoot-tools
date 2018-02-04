@@ -4,12 +4,15 @@ A simple website for fucking with kahoot games.
 
 ## Installation
 
-To install, just clone this repo and run ```npm i && node main.js``` in the cloned directory. 
-Open a web browser and visit your ip with the specified port. You can also visit [sorry down rn](http://dviide.xyz) for an already hosted version of Kahoot Tools. Server costs are low because all the heavy lifting is done from the browser unlike some other web alternatives... *Cough* *cough* *kahootspam* *cough...*
+To install, just clone this repo and run ```npm i && node main.js``` in the cloned directory, open a web browser and visit your IP with the specified port. Defaults to ```80```. 
+
+#### IMPORTANT: READ BEFORE OPENING AN ISSUE
+If you get an EACCESS error while trying to run kahoot-tools, please try to change the server port by setting the ```PORT``` environment variable.
+
 
 ## Usage
 
-The website is pretty self explenatory. 2FA is prompted and connections are done from the browser (cometd.) 
+The website is pretty self explenatory. 2FA is prompted and connections are done from within the browser.
 The only thing the node script does is run a http server and a cors proxy to retrieve a sessionId from kahoot servers.
 
 ## Features
